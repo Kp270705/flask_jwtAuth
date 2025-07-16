@@ -1,6 +1,34 @@
+from flask import jsonify
 from flask_restful import Resource, request
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity,
+    JWTManager
+)
+from CreateResources.jwt import jwt
+
+# ✅ Error handler registration
+def register_jwt_error_handlers():
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            "message": "⚠️ Token has expired. Please re-login.",
+            "error": "token_expired"
+        }), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(reason):
+        return jsonify({
+            "message": "💔 ❌ Invalid token. Please login again.",
+            "error": "invalid_token"
+        }), 422
+
+    @jwt.unauthorized_loader
+    def missing_token_callback(reason):
+        return jsonify({
+            "message": "Authorization token missing.",
+            "error": "authorization_required"
+        }), 401
 
 
 class ProtectedResource(Resource):

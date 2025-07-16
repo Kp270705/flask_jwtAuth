@@ -24,7 +24,7 @@ class UserRegistration(Resource):
         newUser = User(username=username, password=hashed_password)
         db.session.add(newUser)
         db.session.commit()
-        return {'message': "User registered successfully"}, 201
+        return {'message': "✌️🥳 User registered successfully."}, 201
 
 
 class UserLogin(Resource):
@@ -33,15 +33,17 @@ class UserLogin(Resource):
         data = request.get_json()
         username = data['username']
         password = data['password']
-
         user  = User.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
             access_token = create_access_token(identity=str(user.id))
-            print(f"\nUser: {user.username}")
-            
+            print(f"\nUser's name: {username}")
+            print(f"User's password: {user.password}\n")
             print(f"Access token: {access_token}")
-            return {'access_token': f"{access_token}"}, 200
+            
+            return {
+                'access_token': f"{access_token}",
+            }, 200
         return {'message': "Invalid credentials"}, 401
     
 print("✅ Resources.user loaded")
